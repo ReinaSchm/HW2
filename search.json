@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Web Scraping to compare movies and actors",
+    "section": "",
+    "text": "from scrapy.spiders import Spider\nfrom scrapy.http import Request\nfrom scrapy.linkextractors import LinkExtractor\nimport random\nimport scrapy\nimport pandas as pd\nclass TmdbSpider(scrapy.Spider):\n    name = 'tmdb_spider'\n\n    def __init__(self, subdir=\"\", *args, **kwargs):\n        self.start_urls = [f\"https://www.themoviedb.org/movie/{subdir}/\"] # provides url for where we start scraping using the f strings allows us to implement\n                                                                          # {subdir} to input any movie\n\n# three parsing methods:\n    def parse(self, response):\n        cast_url = response.url + '/cast' # hardcoding to the cast page of the movie\n        yield scrapy.Request(cast_url, callback=self.parse_full_credits)\n\n    def parse_full_credits(self, response):\n        cast_links = response.css('ol.people.credits li a::attr(href)').getall()\n        \n        # joins each actor in the list to create each actor's link\n        for actor in cast_links:\n            cast_url = response.urljoin(actor) \n            yield scrapy.Request(url = cast_url, callback = self.parse_actor_page)\n\n    def parse_actor_page(self, response):\n        # starting on an actor's page, navigate's the actor's name\n        actor_name = response.css('h2.title a::text').get()\n        roles = response.css('td.role')\n\n        # creating an empty set because a set cannot have multiples of one element\n        cleaned_roles = set()\n\n        # getting the name of each move/show the actor is casted in from the list of roles \n        for role in roles:\n            movie_or_TV_name = role.css('a.tooltip bdi::text').get() \n            \n            # ensure no duplicates\n            if movie_or_TV_name not in cleaned_roles:\n                yield{\n                \"actor\" : actor_name, \n                \"movie_or_TV_name\" : movie_or_TV_name\n                }\n\n\nresults = pd.read_csv(\"results.csv\")\nmy_results = pd.read_csv(\"my_results.csv\")\n\n# These are titles that are shared between actors of HP and Interstellar\nshare_title = pd.merge(results, my_results, on = \"movie_or_TV_name\")\nshare_title.columns = pd.Index(['HP', 'Title', 'Actor'])\nshare_title = share_title[['Title', 'Actor']]\nshare_title"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  }
+]
