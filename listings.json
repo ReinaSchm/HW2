@@ -5,5 +5,12 @@
       "/posts/post-with-code/index.html",
       "/posts/welcome/index.html"
     ]
+  },
+  {
+    "listing": "/hw2/index.html",
+    "items": [
+      "/hw2/posts/post-with-code/index.html",
+      "/hw2/posts/welcome/index.html"
+    ]
   }
 ]
